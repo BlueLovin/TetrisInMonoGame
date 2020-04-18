@@ -1,0 +1,7 @@
+﻿[*.cs]
+
+# CS0168: Variable is declared but never used
+dotnet_diagnostic.CS0168.severity = none
+
+# CS0169: The field 'Game1.newPieceIsTrue' is never used
+dotnet_diagnostic.CS0169.severity = none
