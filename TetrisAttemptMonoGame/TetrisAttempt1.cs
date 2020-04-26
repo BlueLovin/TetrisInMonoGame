@@ -21,6 +21,10 @@ namespace TetrisAttemptMonoGame
 		static KeyboardState oldKeyboardState;
 		static Random random = new Random();
 
+		//FOR THE ROTATE FUNCTION
+		static int counter;//
+		static bool rotating;//
+		//
 		static Tetromino.type CurrentPieceType;
 		static int CurrentRotation = 0;
 
@@ -245,13 +249,30 @@ namespace TetrisAttemptMonoGame
 					break;
 				}
 			}
+			for (int i = 0; i < Tetromino.PieceList.Count - 4; i++)//IF PIECE GOES INSIDE ANOTHER PIECE
+			{
+				for (int j = Tetromino.PieceList.Count - 5; j < Tetromino.PieceList.Count; j++)
+				{
+					if (Tetromino.PieceList[j].X == Tetromino.PieceList[i].X + 1
+					 && Tetromino.PieceList[j].Y == Tetromino.PieceList[i].Y)
+					{
+						RightCollision = true;
+						break;
+					}
+					if (Tetromino.PieceList[j].X == Tetromino.PieceList[i].X - 1
+					 && Tetromino.PieceList[j].Y == Tetromino.PieceList[i].Y)
+					{
+						LeftCollision = true;
+						break;
+					}
+					else
+						continue;
+				}
+			}
 			for (int i = 0; i < Tetromino.PieceList.Count; i++)
 			{
 				if (i > Tetromino.PieceList.Count - 5)//IF CURRENT FALLING PIECE
 				{
-					
-					
-					
 					//===============CONTROLS===============
 					if (NewKeyboardState.IsKeyUp(Keys.Right)
 						&& oldKeyboardState.IsKeyDown(Keys.Right)
@@ -265,8 +286,6 @@ namespace TetrisAttemptMonoGame
 					{
 						Tetromino.PieceList[i].X--;
 					}
-					
-
 				}
 
 			}
@@ -325,6 +344,8 @@ namespace TetrisAttemptMonoGame
 		}
 		private static void RotatePiece(Tetromino.type CurrentType)
 		{
+			counter++;
+			rotating = false;
 			int currentPieceCount = Tetromino.PieceList.Count;
 
 			if (CurrentType == Tetromino.type.I)
@@ -458,6 +479,26 @@ namespace TetrisAttemptMonoGame
 				}
 			}
 		BreakOut:;//JUMP HERE AFTER ROTATION IS CALCULATED! OOOOUUUU I WROTE A GOTO STATEMENT!
+			if (Tetromino.PieceList.Count > 20) {
+				for (int i = 1; i < Tetromino.PieceList.Count; i++)
+				{
+					for (int j = Tetromino.PieceList.Count - 4; j <= Tetromino.PieceList.Count - 1; j++)
+					{
+						if (Tetromino.PieceList[i].X == Tetromino.PieceList[j].X
+						 && Tetromino.PieceList[i].Y == Tetromino.PieceList[j].Y)
+						{
+							rotating = true;
+							RotatePiece(CurrentType);
+							RotatePiece(CurrentType);
+							RotatePiece(CurrentType);
+							counter = 0;
+
+							rotating = false;
+							break;
+						}
+					}
+				}
+			}
 		}
 		
 		protected override void Draw(GameTime gameTime)
