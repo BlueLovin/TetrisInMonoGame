@@ -227,16 +227,17 @@ namespace TetrisAttemptMonoGame
 		/**/////////////////////////ROTATE CALLED///////////////////////////
 		/**/////////////////////////////////////////////////////////////////
 		/**/if (NewKeyboardState.IsKeyUp(Keys.RightShift)///////////////////
-		/**/	&& oldKeyboardState.IsKeyDown(Keys.RightShift))			 ///
+		/**/	&& oldKeyboardState.IsKeyDown(Keys.RightShift)
+				&& !rotating)			 ///
 		/**/{															 ///
 		/**/	RotatePiece(CurrentPieceType);//////////////////////////////
 		/**/}                                                            ///
-			/**/////////////////////////////////////////////////////////////////
-			/**/////////////////////////////////////////////////////////////////
-			/**/////////////////////////////////////////////////////////////////
+		/**/////////////////////////////////////////////////////////////////
+		/**/////////////////////////////////////////////////////////////////
+		/**/////////////////////////////////////////////////////////////////
 			LeftCollision = false;
 			RightCollision = false;
-			for (int j = Tetromino.PieceList.Count - 4; j <= Tetromino.PieceList.Count - 1; j++)
+			for (int j = Tetromino.PieceList.Count - 4; j <= Tetromino.PieceList.Count - 1; j++) //CHECK CURRENT PIECE FOR COLLISION WITH WINDOW
 			{
 				if (Tetromino.PieceList[j].X == 0)
 				{
@@ -248,27 +249,24 @@ namespace TetrisAttemptMonoGame
 					RightCollision = true;
 					break;
 				}
-			}
-			for (int i = 0; i < Tetromino.PieceList.Count - 4; i++)//IF PIECE GOES INSIDE ANOTHER PIECE
-			{
-				for (int j = Tetromino.PieceList.Count - 5; j < Tetromino.PieceList.Count; j++)
+				for (int i = 0; i < Tetromino.PieceList.Count - 4; i++)//CHECK IF PIECE GOES INSIDE ANOTHER PIECE 
 				{
 					if (Tetromino.PieceList[j].X == Tetromino.PieceList[i].X + 1
-					 && Tetromino.PieceList[j].Y == Tetromino.PieceList[i].Y)
+					 && Tetromino.PieceList[j].Y == Tetromino.PieceList[i].Y)// BY CHECKING CURRENT PIECE AGAINST EVERY OTHER PIECE
 					{
-						RightCollision = true;
+						LeftCollision = true;
 						break;
 					}
 					if (Tetromino.PieceList[j].X == Tetromino.PieceList[i].X - 1
 					 && Tetromino.PieceList[j].Y == Tetromino.PieceList[i].Y)
 					{
-						LeftCollision = true;
+						RightCollision = true;
 						break;
 					}
 					else
 						continue;
 				}
-			}
+				}
 			for (int i = 0; i < Tetromino.PieceList.Count; i++)
 			{
 				if (i > Tetromino.PieceList.Count - 5)//IF CURRENT FALLING PIECE
