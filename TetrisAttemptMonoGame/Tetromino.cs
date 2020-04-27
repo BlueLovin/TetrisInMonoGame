@@ -18,6 +18,7 @@ namespace TetrisAttemptMonoGame
         public int X;
         public int Y;
         GraphicsDeviceManager graphics;
+        public Color pieceColor;
 
 
         #region ROWCOUNT INTS
@@ -64,6 +65,7 @@ namespace TetrisAttemptMonoGame
             row18Count = 0;
             row19Count = 0;
         }
+
         public enum type
         {
             I,
@@ -74,10 +76,11 @@ namespace TetrisAttemptMonoGame
             J,
             L
         }
-        public Tetromino(int xVal, int yVal)
+        public Tetromino(int xVal, int yVal, Color color)
         {
             X = xVal;
             Y = yVal;
+            pieceColor = color;
         }
     }
 }

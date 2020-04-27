@@ -54,7 +54,7 @@ namespace TetrisAttemptMonoGame
 			graphics.PreferredBackBufferHeight = 500;
 			this.IsMouseVisible = true;
 			graphics.ApplyChanges();
-			Tetromino.PieceList.Add(new Tetromino(-10,-99999999));
+			Tetromino.PieceList.Add(new Tetromino(-10,-99999999, Color.White));
 
 			NewPiece();
 		}
@@ -62,11 +62,11 @@ namespace TetrisAttemptMonoGame
 		private static void TimerTick(Object StateInfo)
 		{
 			
-			MouseState ms = Mouse.GetState();
-			if (ms.LeftButton == ButtonState.Pressed)
-			{
-				NewPiece();
-			}
+			//MouseState ms = Mouse.GetState();
+			//if (ms.LeftButton == ButtonState.Pressed)
+			//{
+			//	NewPiece();
+			//}
 			int CurrentCount = (Tetromino.PieceList.Count);
 			collision = false;
 			int counter = 0;
@@ -86,6 +86,10 @@ namespace TetrisAttemptMonoGame
 						collision = true;
 						break;
 					}
+					if (Tetromino.PieceList[i].X == Tetromino.PieceList[j].X
+					&& Tetromino.PieceList[i].Y == Tetromino.PieceList[j].Y)
+						for (int k = CurrentCount - 4; i < CurrentCount; i++)//check current piece
+							Tetromino.PieceList[k].Y--;
 				}
 			}
 			if (collision)
@@ -101,7 +105,7 @@ namespace TetrisAttemptMonoGame
 		private static void CheckLine()
 		{
 			Tetromino.ResetVals();
-			for (int i = 0; i <= Tetromino.PieceList.Count - 1; i++)
+			for (int i = 0; i < Tetromino.PieceList.Count; i++)
 			{
 				Tetromino piece = Tetromino.PieceList[i];
 				if (piece.Y == 1)
@@ -143,52 +147,54 @@ namespace TetrisAttemptMonoGame
 				if (piece.Y == 19)
 					Tetromino.row19Count++;
 
-
-				if (Tetromino.row1Count == 10)
-					LineClear(1);
-				if (Tetromino.row2Count == 10)
-					LineClear(2);
-				if (Tetromino.row3Count == 10)
-					LineClear(3);
-				if (Tetromino.row4Count == 10)
-					LineClear(4);
-				if (Tetromino.row5Count == 10)
-					LineClear(5);
-				if (Tetromino.row6Count == 10)
-					LineClear(6);
-				if (Tetromino.row7Count == 10)
-					LineClear(7);
-				if (Tetromino.row8Count == 10)
-					LineClear(8);
-				if (Tetromino.row9Count == 10)
-					LineClear(9);
-				if (Tetromino.row10Count == 10)
-					LineClear(10);
-				if (Tetromino.row11Count == 10)
-					LineClear(11);
-				if (Tetromino.row12Count == 10)
-					LineClear(12);
-				if (Tetromino.row13Count == 10)
-					LineClear(13);
-				if (Tetromino.row14Count == 10)
-					LineClear(14);
-				if (Tetromino.row15Count == 10)
-					LineClear(15);
-				if (Tetromino.row16Count == 10)
-					LineClear(16);
-				if (Tetromino.row17Count == 10)
-					LineClear(17);
-				if (Tetromino.row18Count == 10)
-					LineClear(18);
-				if (Tetromino.row19Count == 10)
-					LineClear(19);
+				if (i == Tetromino.PieceList.Count - 1)
+				{
+					if (Tetromino.row1Count == 10)
+						LineClear(1);
+					if (Tetromino.row2Count == 10)
+						LineClear(2);
+					if (Tetromino.row3Count == 10)
+						LineClear(3);
+					if (Tetromino.row4Count == 10)
+						LineClear(4);
+					if (Tetromino.row5Count == 10)
+						LineClear(5);
+					if (Tetromino.row6Count == 10)
+						LineClear(6);
+					if (Tetromino.row7Count == 10)
+						LineClear(7);
+					if (Tetromino.row8Count == 10)
+						LineClear(8);
+					if (Tetromino.row9Count == 10)
+						LineClear(9);
+					if (Tetromino.row10Count == 10)
+						LineClear(10);
+					if (Tetromino.row11Count == 10)
+						LineClear(11);
+					if (Tetromino.row12Count == 10)
+						LineClear(12);
+					if (Tetromino.row13Count == 10)
+						LineClear(13);
+					if (Tetromino.row14Count == 10)
+						LineClear(14);
+					if (Tetromino.row15Count == 10)
+						LineClear(15);
+					if (Tetromino.row16Count == 10)
+						LineClear(16);
+					if (Tetromino.row17Count == 10)
+						LineClear(17);
+					if (Tetromino.row18Count == 10)
+						LineClear(18);
+					if (Tetromino.row19Count == 10)
+						LineClear(19);
+				}
 			}
 			Tetromino.ResetVals();
 		}
 		private static void LineClear(int Row)
 		{
 			Tetromino.ResetVals();
-			for (int i = 0; i < Tetromino.PieceList.Count; i++)
+			for (int i = 1; i < Tetromino.PieceList.Count; i++)
 			{
 				if (Tetromino.PieceList[i].Y == Row)
 				{
@@ -197,7 +203,7 @@ namespace TetrisAttemptMonoGame
 			}
 			foreach (Tetromino piece in Tetromino.PieceList)
 			{
-				if(piece.Y <= Row)
+				if(piece.Y < Row)
 					piece.Y++;
 			}
 			linecleared = true;
@@ -294,60 +300,99 @@ namespace TetrisAttemptMonoGame
 		private static void NewPiece()
 		{//================================TODO: ADD DIFFERENT TYPES OF SHAPES=====================
 			timer.Change(1000, 100);
-			CheckLine();
+			//CheckLine();
 			if (linecleared) 
 			{
+				linecleared = false;
 				Thread.Sleep(200);
 				CheckLine();
 				if (linecleared)
 				{
+					linecleared = false;
 					Thread.Sleep(200);
 					CheckLine();
 					if (linecleared)
 					{
 						Thread.Sleep(200);
 						CheckLine();
+						linecleared = false;
 					}
 				}
 			}
 			linecleared = false;
 			collision = false;
-			int typeInt = random.Next(0, 3);
-			//int typeInt = 0;
+			int typeInt = random.Next(0, 5);
+			//int typeInt = 6;
 			CurrentRotation = 0;
 			if (typeInt == 0)//I
 			{
 				CurrentPieceType = Tetromino.type.I;
-				Tetromino.PieceList.Add(new Tetromino(4,0));
-				Tetromino.PieceList.Add(new Tetromino(4,1));
-				Tetromino.PieceList.Add(new Tetromino(4,2));
-				Tetromino.PieceList.Add(new Tetromino(4,3));
+				Tetromino.PieceList.Add(new Tetromino(4,0, Color.Tan));
+				Tetromino.PieceList.Add(new Tetromino(4,1, Color.Tan));
+				Tetromino.PieceList.Add(new Tetromino(4,2, Color.Tan));
+				Tetromino.PieceList.Add(new Tetromino(4,3, Color.Tan));
 			}
 			else if (typeInt == 1)//L
 			{
 				CurrentPieceType = Tetromino.type.L;
-				Tetromino.PieceList.Add(new Tetromino(4, 0));
-				Tetromino.PieceList.Add(new Tetromino(4, 1));
-				Tetromino.PieceList.Add(new Tetromino(4, 2));
-				Tetromino.PieceList.Add(new Tetromino(5, 2));
+				Tetromino.PieceList.Add(new Tetromino(4, 0, Color.White));
+				Tetromino.PieceList.Add(new Tetromino(4, 1, Color.White));
+				Tetromino.PieceList.Add(new Tetromino(4, 2, Color.White));
+				Tetromino.PieceList.Add(new Tetromino(5, 2, Color.White));
 			}
 			else if (typeInt == 2)//T
 			{
 				CurrentPieceType = Tetromino.type.T;
-				Tetromino.PieceList.Add(new Tetromino(5, 0));
-				Tetromino.PieceList.Add(new Tetromino(4, 1));
-				Tetromino.PieceList.Add(new Tetromino(5, 1));
-				Tetromino.PieceList.Add(new Tetromino(6, 1));
+				Tetromino.PieceList.Add(new Tetromino(5, 0, Color.Lavender));
+				Tetromino.PieceList.Add(new Tetromino(4, 1, Color.Lavender));
+				Tetromino.PieceList.Add(new Tetromino(5, 1, Color.Lavender));
+				Tetromino.PieceList.Add(new Tetromino(6, 1, Color.Lavender));
+			}
+			else if (typeInt == 3)//J
+			{
+				CurrentPieceType = Tetromino.type.J;
+				Tetromino.PieceList.Add(new Tetromino(4, 0, Color.Green));
+				Tetromino.PieceList.Add(new Tetromino(4, 1, Color.Green));
+				Tetromino.PieceList.Add(new Tetromino(4, 2, Color.Green));
+				Tetromino.PieceList.Add(new Tetromino(3, 2, Color.Green));
+			}
+			else if (typeInt == 4)//O
+			{
+				CurrentPieceType = Tetromino.type.O;
+				Tetromino.PieceList.Add(new Tetromino(4, 0, Color.PaleVioletRed));
+				Tetromino.PieceList.Add(new Tetromino(4, 1, Color.PaleVioletRed));
+				Tetromino.PieceList.Add(new Tetromino(5, 0, Color.PaleVioletRed));
+				Tetromino.PieceList.Add(new Tetromino(5, 1, Color.PaleVioletRed));
+			}
+			else if (typeInt == 5)//S
+			{
+				CurrentPieceType = Tetromino.type.S;
+				Tetromino.PieceList.Add(new Tetromino(5, 0, Color.LightGreen));
+				Tetromino.PieceList.Add(new Tetromino(4, 0, Color.LightGreen));
+				Tetromino.PieceList.Add(new Tetromino(4, 1, Color.LightGreen));
+				Tetromino.PieceList.Add(new Tetromino(3, 1, Color.LightGreen));
+			}
+			else if (typeInt == 6)//S
+			{
+				CurrentPieceType = Tetromino.type.Z;
+				Tetromino.PieceList.Add(new Tetromino(4, 0, Color.ForestGreen));
+				Tetromino.PieceList.Add(new Tetromino(5, 0, Color.ForestGreen));
+				Tetromino.PieceList.Add(new Tetromino(5, 1, Color.ForestGreen));
+				Tetromino.PieceList.Add(new Tetromino(6, 1, Color.ForestGreen));
 			}
 		}
 		private static void RotatePiece(Tetromino.type CurrentType)
 		{
+			
 			counter++;
 			rotating = false;
 			int currentPieceCount = Tetromino.PieceList.Count;
 
 			if (CurrentType == Tetromino.type.I)
 			{
+				if (LeftCollision || RightCollision)
+					goto BreakOut;
+
 				if (CurrentRotation == 0)
 				{
 					Tetromino.PieceList[currentPieceCount - 1].X += 2;
@@ -356,6 +401,7 @@ namespace TetrisAttemptMonoGame
 					Tetromino.PieceList[currentPieceCount - 2].Y--;
 					Tetromino.PieceList[currentPieceCount - 4].X--;
 					Tetromino.PieceList[currentPieceCount - 4].Y++;
+
 					CurrentRotation = 90;
 					goto BreakOut;
 				}
@@ -374,6 +420,8 @@ namespace TetrisAttemptMonoGame
 			}
 			if (CurrentType == Tetromino.type.L)
 			{
+				if (LeftCollision || RightCollision)
+					goto BreakOut;
 				if (CurrentRotation == 0)
 				{
 					Tetromino.PieceList[currentPieceCount - 1].X -= 2;
@@ -405,10 +453,8 @@ namespace TetrisAttemptMonoGame
 					Tetromino.PieceList[currentPieceCount - 1].X += 2;
 					Tetromino.PieceList[currentPieceCount - 2].X++;
 					Tetromino.PieceList[currentPieceCount - 2].Y++;
-
 					Tetromino.PieceList[currentPieceCount - 4].X--;
 					Tetromino.PieceList[currentPieceCount - 4].Y--;
-
 
 					CurrentRotation = 270;
 
@@ -420,10 +466,8 @@ namespace TetrisAttemptMonoGame
 					Tetromino.PieceList[currentPieceCount - 1].Y++;
 					Tetromino.PieceList[currentPieceCount - 2].X--;
 					Tetromino.PieceList[currentPieceCount - 3].Y--;
-
 					Tetromino.PieceList[currentPieceCount - 4].X++;
 					Tetromino.PieceList[currentPieceCount - 4].Y -= 2;
-
 
 					CurrentRotation = 0;
 
@@ -432,7 +476,7 @@ namespace TetrisAttemptMonoGame
 			}
 			if (CurrentType == Tetromino.type.T)
 			{
-				if(CurrentRotation == 0)
+				if (CurrentRotation == 0)
 				{
 					Tetromino.PieceList[currentPieceCount - 1].Y++;
 					Tetromino.PieceList[currentPieceCount - 1].X -= 2;
@@ -460,7 +504,6 @@ namespace TetrisAttemptMonoGame
 					Tetromino.PieceList[currentPieceCount - 2].Y++;
 					Tetromino.PieceList[currentPieceCount - 3].Y += 2;
 
-
 					CurrentRotation = 270;
 					goto BreakOut;
 				}
@@ -471,32 +514,139 @@ namespace TetrisAttemptMonoGame
 					Tetromino.PieceList[currentPieceCount - 2].Y++;
 					Tetromino.PieceList[currentPieceCount - 3].X -= 2;
 
+					CurrentRotation = 0;
+					goto BreakOut;
+				}
+			}
+			if (CurrentType == Tetromino.type.J)
+			{
+				if (LeftCollision || RightCollision)
+					goto BreakOut;
+				if (CurrentRotation == 0)
+				{
+					Tetromino.PieceList[currentPieceCount - 1].Y -= 2;
+					Tetromino.PieceList[currentPieceCount - 2].X--;
+					Tetromino.PieceList[currentPieceCount - 2].Y--;
+					Tetromino.PieceList[currentPieceCount - 4].Y++;
+					Tetromino.PieceList[currentPieceCount - 4].X++;
+
+					CurrentRotation = 90;
+					goto BreakOut;
+				}
+				if (CurrentRotation == 90)
+				{
+					Tetromino.PieceList[currentPieceCount - 1].X++;
+					Tetromino.PieceList[currentPieceCount - 2].Y--;
+					Tetromino.PieceList[currentPieceCount - 3].X--;
+					Tetromino.PieceList[currentPieceCount - 4].Y++;
+					Tetromino.PieceList[currentPieceCount - 4].X -= 2;
+
+					CurrentRotation = 180;
+					goto BreakOut;
+				}
+				if (CurrentRotation == 180)
+				{
+					Tetromino.PieceList[currentPieceCount - 1].X++;
+					Tetromino.PieceList[currentPieceCount - 1].Y++;
+
+					Tetromino.PieceList[currentPieceCount - 2].X += 2;
+					Tetromino.PieceList[currentPieceCount - 3].X++;
+					Tetromino.PieceList[currentPieceCount - 3].Y--;
+					Tetromino.PieceList[currentPieceCount - 4].Y -= 2;
+
+					CurrentRotation = 270;
+					goto BreakOut;
+				}
+				if (CurrentRotation == 270)
+				{
+					Tetromino.PieceList[currentPieceCount - 1].X -= 2;
+					Tetromino.PieceList[currentPieceCount - 1].Y++;
+					Tetromino.PieceList[currentPieceCount - 2].X--;
+					Tetromino.PieceList[currentPieceCount - 2].Y += 2;
+					Tetromino.PieceList[currentPieceCount - 3].Y++;
+					Tetromino.PieceList[currentPieceCount - 4].X++;
+
+					CurrentRotation = 0;
+					goto BreakOut;
+				}
+				
+			}
+			if (CurrentType == Tetromino.type.S)
+			{
+				if (LeftCollision || RightCollision)
+					goto BreakOut;
+				if (CurrentRotation == 0)
+				{
+					Tetromino.PieceList[currentPieceCount - 1].Y--;
+					Tetromino.PieceList[currentPieceCount - 2].X--;
+					Tetromino.PieceList[currentPieceCount - 3].Y++;
+					Tetromino.PieceList[currentPieceCount - 4].Y += 2;
+					Tetromino.PieceList[currentPieceCount - 4].X--;
+
+					CurrentRotation = 90;
+					goto BreakOut;
+				}
+				if (CurrentRotation == 90)
+				{
+					Tetromino.PieceList[currentPieceCount - 1].Y++;
+					Tetromino.PieceList[currentPieceCount - 2].X++;
+					Tetromino.PieceList[currentPieceCount - 3].Y--;
+					Tetromino.PieceList[currentPieceCount - 4].Y -= 2;
+					Tetromino.PieceList[currentPieceCount - 4].X++;
+
+					CurrentRotation = 0;
+					goto BreakOut;
+				}
+			}
+			if (CurrentType == Tetromino.type.Z)
+			{
+				if (LeftCollision || RightCollision)
+					goto BreakOut;
+				if (CurrentRotation == 0)
+				{
+					Tetromino.PieceList[currentPieceCount - 1].Y++;
+					Tetromino.PieceList[currentPieceCount - 1].X -= 2;
+					Tetromino.PieceList[currentPieceCount - 2].X--;
+					Tetromino.PieceList[currentPieceCount - 3].Y++;
+					Tetromino.PieceList[currentPieceCount - 4].X++;
+
+					CurrentRotation = 90;
+					goto BreakOut;
+				}
+				if (CurrentRotation == 90)
+				{
+					Tetromino.PieceList[currentPieceCount - 1].Y--;
+					Tetromino.PieceList[currentPieceCount - 1].X += 2;
+					Tetromino.PieceList[currentPieceCount - 2].X++;
+					Tetromino.PieceList[currentPieceCount - 3].Y--;
+					Tetromino.PieceList[currentPieceCount - 4].X--;
 
 					CurrentRotation = 0;
 					goto BreakOut;
 				}
 			}
 		BreakOut:;//JUMP HERE AFTER ROTATION IS CALCULATED! OOOOUUUU I WROTE A GOTO STATEMENT!
-			if (Tetromino.PieceList.Count > 20) {
-				for (int i = 1; i < Tetromino.PieceList.Count; i++)
-				{
-					for (int j = Tetromino.PieceList.Count - 4; j <= Tetromino.PieceList.Count - 1; j++)
-					{
-						if (Tetromino.PieceList[i].X == Tetromino.PieceList[j].X
-						 && Tetromino.PieceList[i].Y == Tetromino.PieceList[j].Y)
-						{
-							rotating = true;
-							RotatePiece(CurrentType);
-							RotatePiece(CurrentType);
-							RotatePiece(CurrentType);
-							counter = 0;
 
-							rotating = false;
-							break;
-						}
-					}
-				}
-			}
+			//if (Tetromino.PieceList.Count > 4) {
+			//	for (int i = 1; i < Tetromino.PieceList.Count; i++)
+			//	{
+			//		for (int j = Tetromino.PieceList.Count - 4; j <= Tetromino.PieceList.Count - 1; j++)
+			//		{
+			//			if (Tetromino.PieceList[i].X == Tetromino.PieceList[j].X
+			//			 && Tetromino.PieceList[i].Y == Tetromino.PieceList[j].Y)
+			//			{
+			//				rotating = true;
+			//				RotatePiece(CurrentType);
+			//				RotatePiece(CurrentType);
+			//				RotatePiece(CurrentType);
+			//				counter = 0;
+
+			//				rotating = false;
+			//				break;
+			//			}
+			//		}
+			//	}
+			//}
 		}
 		
 		protected override void Draw(GameTime gameTime)
@@ -505,22 +655,10 @@ namespace TetrisAttemptMonoGame
 			spriteBatch.Begin();
 			foreach (Tetromino piece in Tetromino.PieceList)
 			{
-				spriteBatch.Draw(tile, new Vector2(piece.X * 25, piece.Y * 25), Color.White);
+				spriteBatch.Draw(tile, new Vector2(piece.X * 25, piece.Y * 25), piece.pieceColor);
 			}
 			//spriteBatch.Draw(background, new Vector2(0,0), Color.White);
 			spriteBatch.End();
-
-			//if (collision && linecleared)
-			//{
-			//	CheckLine();
-
-			//}
-			//if (linecleared)
-			//{
-			//	Thread.Sleep(500);
-			//	CheckLine();
-			//}
-
 
 			base.Draw(gameTime);
 		}
