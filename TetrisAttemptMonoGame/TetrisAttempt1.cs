@@ -1,9 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System.Timers;
 using System;
-using System.Collections.Generic;
 using System.Threading;
 
 namespace TetrisAttemptMonoGame
@@ -22,23 +20,24 @@ namespace TetrisAttemptMonoGame
 		static Random random = new Random();
 
 		//FOR THE ROTATE FUNCTION
-		static int counter;//
+		static int counter;////
 		static bool rotating;//
-		//
+		///////////////////////
 		static Tetromino.type CurrentPieceType;
 		static int CurrentRotation = 0;
 
 		static TimerCallback callback = new TimerCallback(TimerTick);
 		public static System.Threading.Timer timer = new System.Threading.Timer(callback, null, 0, 50);//TIMER!!!
 
+		public static bool GameOverBool = false;
 
 		static bool collision = false;
 		static bool LeftCollision = false;
 		static bool RightCollision = false;
 
-
 		Texture2D background;
 		Texture2D tile;
+		Texture2D GameOverScreen;
 
 
 		public Game1()
@@ -54,14 +53,18 @@ namespace TetrisAttemptMonoGame
 			graphics.PreferredBackBufferHeight = 500;
 			this.IsMouseVisible = true;
 			graphics.ApplyChanges();
-			Tetromino.PieceList.Add(new Tetromino(-10,-99999999, Color.White));
+			Tetromino.PieceList.Add(new Tetromino(-10, -99999999, Color.White));
 
 			NewPiece();
 		}
-
+		private static void GameOver()
+		{
+			Tetromino.PieceList.Clear();
+			GameOverBool = true;
+		}
 		private static void TimerTick(Object StateInfo)
 		{
-			
+
 			//MouseState ms = Mouse.GetState();
 			//if (ms.LeftButton == ButtonState.Pressed)
 			//{
@@ -73,28 +76,35 @@ namespace TetrisAttemptMonoGame
 			for (int i = CurrentCount - 4; i < CurrentCount; i++)//check current piece
 			{
 				counter++;
-				if (counter <= 4 && i >= 0)//TIMER TICK MOVEMENT
+				if (counter <= 4 && i >= 0 && !linecleared) //TIMER TICK MOVEMENT
 				{
 					Tetromino.PieceList[i].Y++;
 				}
-				for (int j = 0; j < Tetromino.PieceList.Count - 4; j++)//then scan for collision against every other piece
+				try//IF THERE IS NO COLLISION IMMEDIATELY!
 				{
-					if (Tetromino.PieceList[i].Y == Tetromino.PieceList[j].Y - 1
-						&& Tetromino.PieceList[i].X == Tetromino.PieceList[j].X
-						|| Tetromino.PieceList[i].Y == 19)//COLLISION WITH ALL PIECES
+					for (int j = 0; j < Tetromino.PieceList.Count - 4; j++)//then scan for collision against every other piece
 					{
-						collision = true;
-						break;
+						if (Tetromino.PieceList[i].Y == Tetromino.PieceList[j].Y - 1
+							&& Tetromino.PieceList[i].X == Tetromino.PieceList[j].X
+							|| Tetromino.PieceList[i].Y == 19)//COLLISION WITH ALL PIECES
+						{
+							collision = true;
+							break;
+						}
+						if (Tetromino.PieceList[i].X == Tetromino.PieceList[j].X
+						&& Tetromino.PieceList[i].Y == Tetromino.PieceList[j].Y)
+							for (int k = CurrentCount - 4; i < CurrentCount; i++)//IF PIECE GETS STUCK INSIDE ANOTHER BLOCK, KICK IT OUT
+								Tetromino.PieceList[k].Y--;
 					}
-					if (Tetromino.PieceList[i].X == Tetromino.PieceList[j].X
-					&& Tetromino.PieceList[i].Y == Tetromino.PieceList[j].Y)
-						for (int k = CurrentCount - 4; i < CurrentCount; i++)//check current piece
-							Tetromino.PieceList[k].Y--;
+				}
+				catch//IF YOU LOSE!
+				{
+					GameOver();
 				}
 			}
 			if (collision)
 			{
-				CheckLine();
+				//CheckLine();
 				NewPiece();
 			}
 		}
@@ -189,12 +199,26 @@ namespace TetrisAttemptMonoGame
 						LineClear(19);
 				}
 			}
-			Tetromino.ResetVals();
 		}
 		private static void LineClear(int Row)
 		{
-			Tetromino.ResetVals();
-			for (int i = 1; i < Tetromino.PieceList.Count; i++)
+			linecleared = true;
+
+			for (int i = 0; i < Tetromino.PieceList.Count; i++)
+			{
+				if (Tetromino.PieceList[i].Y == Row)
+				{
+					Tetromino.PieceList.RemoveAt(i);
+				}
+			}
+			for (int i = 0; i < Tetromino.PieceList.Count; i++)
+			{
+				if (Tetromino.PieceList[i].Y == Row)
+				{
+					Tetromino.PieceList.RemoveAt(i);
+				}
+			}
+			for (int i = 0; i < Tetromino.PieceList.Count; i++)
 			{
 				if (Tetromino.PieceList[i].Y == Row)
 				{
@@ -203,10 +227,9 @@ namespace TetrisAttemptMonoGame
 			}
 			foreach (Tetromino piece in Tetromino.PieceList)
 			{
-				if(piece.Y < Row)
+				if (piece.Y < Row)
 					piece.Y++;
 			}
-			linecleared = true;
 
 		}
 		protected override void LoadContent()
@@ -215,7 +238,7 @@ namespace TetrisAttemptMonoGame
 			spriteBatch = new SpriteBatch(GraphicsDevice);
 			background = Content.Load<Texture2D>("background");
 			tile = Content.Load<Texture2D>("tile");
-
+			GameOverScreen = Content.Load<Texture2D>("gameoverscrn");
 		}
 		protected override void UnloadContent()
 		{
@@ -223,56 +246,63 @@ namespace TetrisAttemptMonoGame
 		protected override void Update(GameTime gameTime)
 		{
 			Tetromino.ResetVals();
-			
+
 			collision = false;
 
 			KeyboardState OldKeyboardState;
 			KeyboardState NewKeyboardState = Keyboard.GetState();
 
-		/**/////////////////////////////////////////////////////////////////
-		/**/////////////////////////ROTATE CALLED///////////////////////////
-		/**/////////////////////////////////////////////////////////////////
-		/**/if (NewKeyboardState.IsKeyUp(Keys.RightShift)///////////////////
-		/**/	&& oldKeyboardState.IsKeyDown(Keys.RightShift)
-				&& !rotating)			 ///
-		/**/{															 ///
-		/**/	RotatePiece(CurrentPieceType);//////////////////////////////
-		/**/}                                                            ///
-		/**/////////////////////////////////////////////////////////////////
-		/**/////////////////////////////////////////////////////////////////
-		/**/////////////////////////////////////////////////////////////////
+			////////////////////////////////////////////////////////////////
+			////////////////////////ROTATE CALLED///////////////////////////
+			////////////////////////////////////////////////////////////////
+
+			if (NewKeyboardState.IsKeyUp(Keys.RightShift)
+			        && oldKeyboardState.IsKeyDown(Keys.RightShift)
+			    	&& !rotating)      
+			{
+				RotatePiece(CurrentPieceType);
+			}
+
 			LeftCollision = false;
 			RightCollision = false;
 			for (int j = Tetromino.PieceList.Count - 4; j <= Tetromino.PieceList.Count - 1; j++) //CHECK CURRENT PIECE FOR COLLISION WITH WINDOW
 			{
-				if (Tetromino.PieceList[j].X == 0)
+				try//GAME OVER CHECK!
 				{
-					LeftCollision = true;
-					break;
-				}
-				if (Tetromino.PieceList[j].X == 9)
-				{
-					RightCollision = true;
-					break;
-				}
-				for (int i = 0; i < Tetromino.PieceList.Count - 4; i++)//CHECK IF PIECE GOES INSIDE ANOTHER PIECE 
-				{
-					if (Tetromino.PieceList[j].X == Tetromino.PieceList[i].X + 1
-					 && Tetromino.PieceList[j].Y == Tetromino.PieceList[i].Y)// BY CHECKING CURRENT PIECE AGAINST EVERY OTHER PIECE
+					if (Tetromino.PieceList[j].X == 0)
 					{
 						LeftCollision = true;
 						break;
 					}
-					if (Tetromino.PieceList[j].X == Tetromino.PieceList[i].X - 1
-					 && Tetromino.PieceList[j].Y == Tetromino.PieceList[i].Y)
+					if (Tetromino.PieceList[j].X == 9)
 					{
 						RightCollision = true;
 						break;
 					}
-					else
-						continue;
+					for (int i = 0; i < Tetromino.PieceList.Count - 4; i++)//CHECK IF PIECE GOES INSIDE ANOTHER PIECE 
+					{
+						if (Tetromino.PieceList[j].X == Tetromino.PieceList[i].X + 1
+						 && Tetromino.PieceList[j].Y == Tetromino.PieceList[i].Y)// BY CHECKING CURRENT PIECE AGAINST EVERY OTHER PIECE
+						{
+							LeftCollision = true;
+							break;
+						}
+						if (Tetromino.PieceList[j].X == Tetromino.PieceList[i].X - 1
+						 && Tetromino.PieceList[j].Y == Tetromino.PieceList[i].Y)
+						{
+							RightCollision = true;
+							break;
+						}
+						else
+							continue;
+					}
 				}
+				catch//GAME OVER BITCH! HAPPENS WHEN PIECE IS CREATED OVER AND OVER UNTIL IT BREAKS
+				{
+					GameOverBool = true;
+					break;
 				}
+			}
 			for (int i = 0; i < Tetromino.PieceList.Count; i++)
 			{
 				if (i > Tetromino.PieceList.Count - 5)//IF CURRENT FALLING PIECE
@@ -282,7 +312,7 @@ namespace TetrisAttemptMonoGame
 						&& oldKeyboardState.IsKeyDown(Keys.Right)
 						&& !RightCollision)//window bounds
 					{
-						 Tetromino.PieceList[i].X++;
+						Tetromino.PieceList[i].X++;
 					}
 					if (NewKeyboardState.IsKeyUp(Keys.Left)
 						&& oldKeyboardState.IsKeyDown(Keys.Left)
@@ -299,9 +329,10 @@ namespace TetrisAttemptMonoGame
 		}
 		private static void NewPiece()
 		{//================================TODO: ADD DIFFERENT TYPES OF SHAPES=====================
-			timer.Change(1000, 100);
-			//CheckLine();
-			if (linecleared) 
+			Tetromino.ResetVals();
+			timer.Change(1000, 200);
+			CheckLine();
+			if (linecleared)
 			{
 				linecleared = false;
 				Thread.Sleep(200);
@@ -327,10 +358,10 @@ namespace TetrisAttemptMonoGame
 			if (typeInt == 0)//I
 			{
 				CurrentPieceType = Tetromino.type.I;
-				Tetromino.PieceList.Add(new Tetromino(4,0, Color.Tan));
-				Tetromino.PieceList.Add(new Tetromino(4,1, Color.Tan));
-				Tetromino.PieceList.Add(new Tetromino(4,2, Color.Tan));
-				Tetromino.PieceList.Add(new Tetromino(4,3, Color.Tan));
+				Tetromino.PieceList.Add(new Tetromino(4, 0, Color.Tan));
+				Tetromino.PieceList.Add(new Tetromino(4, 1, Color.Tan));
+				Tetromino.PieceList.Add(new Tetromino(4, 2, Color.Tan));
+				Tetromino.PieceList.Add(new Tetromino(4, 3, Color.Tan));
 			}
 			else if (typeInt == 1)//L
 			{
@@ -383,7 +414,7 @@ namespace TetrisAttemptMonoGame
 		}
 		private static void RotatePiece(Tetromino.type CurrentType)
 		{
-			
+
 			counter++;
 			rotating = false;
 			int currentPieceCount = Tetromino.PieceList.Count;
@@ -569,7 +600,7 @@ namespace TetrisAttemptMonoGame
 					CurrentRotation = 0;
 					goto BreakOut;
 				}
-				
+
 			}
 			if (CurrentType == Tetromino.type.S)
 			{
@@ -648,14 +679,22 @@ namespace TetrisAttemptMonoGame
 			//	}
 			//}
 		}
-		
+
 		protected override void Draw(GameTime gameTime)
 		{
 			GraphicsDevice.Clear(Color.Black);
 			spriteBatch.Begin();
-			foreach (Tetromino piece in Tetromino.PieceList)
+
+			if (!GameOverBool)
 			{
-				spriteBatch.Draw(tile, new Vector2(piece.X * 25, piece.Y * 25), piece.pieceColor);
+				foreach (Tetromino piece in Tetromino.PieceList)
+				{
+					spriteBatch.Draw(tile, new Vector2(piece.X * 25, piece.Y * 25), piece.pieceColor);
+				}
+			}
+			else
+			{
+				spriteBatch.Draw(GameOverScreen, new Vector2(0, 0), Color.White);
 			}
 			//spriteBatch.Draw(background, new Vector2(0,0), Color.White);
 			spriteBatch.End();
